@@ -2,30 +2,36 @@ TARGET_NAME := app
 
 # ディレクトリの設定
 TARGET_DIR  := bin
-INCLUDE_DIR := include
-SRC_DIR     := .
+SRC_DIR     := ../src
 BUILD_DIR   := build
+
+INCLUDE := -I./include
+INCLUDE += -I../src
 
 TARGET := $(TARGET_DIR)/$(TARGET_NAME)
 
 CC      := /usr/local/bin/g++-10
-CFLAGS  := -Wall -O2 -I$(INCLUDE_DIR)
+CFLAGS  := -Wall -O2 $(INCLUDE)
 LDFLAGS := -L../lib -lgtest_main -lgtest
-
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
-OBJS := $(addprefix $(BUILD_DIR)/,$(SRCS:.cpp=.o))
 
 .PHONY: all clean
 
-all: $(TARGET)
+all: \
+	$(TARGET_DIR)/character_test
 
-$(TARGET): $(OBJS)
+$(TARGET_DIR)/character_test: \
+	$(BUILD_DIR)/character.o \
+	$(BUILD_DIR)/character_test.o
 	@mkdir -p $(TARGET_DIR)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
-$(BUILD_DIR)/%.o: %.cpp
-	@mkdir -p $(BUILD_DIR)/$(SRC_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(BUILD_DIR)/character.o:
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/character.cpp -o $@
+
+$(BUILD_DIR)/character_test.o:
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c character_test.cpp -o $@
 
 clean:
 	rm -rf $(BUILD_DIR)
